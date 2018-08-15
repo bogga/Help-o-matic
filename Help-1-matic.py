@@ -16,6 +16,10 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
+@client.command(name="hello", description="h e l l o", brief="hello", aliases=["hi"])
+async def hello():
+    pass
+
 @client.command(name="divide", description="splits the given values into n groups", brief="splits", aliases=["split"])
 async def divide(name : str, num : int):
     names = name.split(",")
@@ -28,12 +32,18 @@ async def divide(name : str, num : int):
         out.append(names[int(last):int(last + avg)])
         last += avg
 
+    printable = ""
     for i in range(num):
-        printable = "Team " + str(i + 1) + ": "
+        printable += "Team " + str(i + 1) + ": "
         for j in range(len(out[i])):
+            if out[i][j][0] == " ":
+                out[i][j] = out[i][j][1:]
+            if out[i][j][-1] == " ":
+                out[i][j] = out[i][j][:-1]
             printable += out[i][j]
             if j < (len(out[i]) - 1):
                 printable += ", "
-        await client.say(printable)
+        printable += "\n"
+    await client.say(printable)
 
 client.run(TOKEN)
