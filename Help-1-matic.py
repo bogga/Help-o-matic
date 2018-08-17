@@ -73,6 +73,8 @@ async def divide(ctx, *args):
             printable += "Team " + str(i + 1) + ": "
             for j in range(len(out[i])):
                 printable += out[i][j].mention
+                if j < (len(out[i]) - 1):
+                    printable += ", "
             printable += "\n"
     await client.say(printable)
 
