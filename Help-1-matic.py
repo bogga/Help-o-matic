@@ -18,11 +18,26 @@ async def on_ready():
 
 @client.command(name="hello", description="h e l l o", brief="hello", aliases=["hi"])
 async def hello():
+    # await client.say(str(command))
     pass
 
-@client.command(name="divide", description="splits the given values into n groups", brief="splits", aliases=["split"])
-async def divide(name : str, num : int):
-    names = name.split(",")
+@client.command(name="divide", description="splits the given values into n groups", brief="splits", aliases=["split"], pass_context=True)
+async def divide(ctx, *args):
+    if len(args) == 1:
+        invoker = ctx.message.author
+
+        if invoker.voice != None:
+            names = invoker.voice.voice_channel.voice_members
+        num = int(args[0])
+    else:
+        try:
+            num = int(args[-1])
+            args = args[:-1]
+        except ValueError:
+            num = 2
+        names = []
+        for item in args:
+            names.extend(item)
     avg = len(names) / float(num)
     out = []
     last = 0.0
@@ -32,18 +47,26 @@ async def divide(name : str, num : int):
         out.append(names[int(last):int(last + avg)])
         last += avg
 
-    printable = ""
-    for i in range(num):
-        printable += "Team " + str(i + 1) + ": "
-        for j in range(len(out[i])):
-            if out[i][j][0] == " ":
-                out[i][j] = out[i][j][1:]
-            if out[i][j][-1] == " ":
-                out[i][j] = out[i][j][:-1]
-            printable += out[i][j]
-            if j < (len(out[i]) - 1):
-                printable += ", "
-        printable += "\n"
+    if len(args) != 1:
+        printable = ""
+        for i in range(num):
+            printable += "Team " + str(i + 1) + ": "
+            for j in range(len(out[i])):
+                if out[i][j][0] == " ":
+                    out[i][j] = out[i][j][1:]
+                if out[i][j][-1] == " ":
+                    out[i][j] = out[i][j][:-1]
+                printable += out[i][j]
+                if j < (len(out[i]) - 1):
+                    printable += ", "
+            printable += "\n"
+    else:
+        printable = ""
+        for i in range(num):
+            printable += "Team " + str(i + 1) + ": "
+            for j in range(len(out[i])):
+                printable += out[i][j].mention
+            printable += "\n"
     await client.say(printable)
 
 client.run(TOKEN)
