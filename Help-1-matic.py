@@ -16,18 +16,21 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
-@client.command(name="hello", description="h e l l o", brief="hello", aliases=["hi"])
-async def hello():
-    # await client.say(str(command))
+@client.command(name="hello", description="h e l l o", brief="hello", aliases=["hi"], pass_context=True)
+async def hello(ctx):
+    await client.say("Hello " + ctx.message.author.mention + "!")
     pass
 
-@client.command(name="divide", description="splits the given values into n groups", brief="splits", aliases=["split"], pass_context=True)
+@client.command(name="divide", description="2 modes:\n1) e.g.: !divide A B C D 2 ->\nTeam 1: B, D\nTeam 2: A, C\n2) !divide N -> this splits all members of your current voice channel into N teams", brief="splits", aliases=["split"], pass_context=True)
 async def divide(ctx, *args):
     if len(args) == 1:
         invoker = ctx.message.author
 
-        if invoker.voice != None:
+        try:
             names = invoker.voice.voice_channel.voice_members
+        except AttributeError:
+            await client.say("You're not in a voice channel!")
+            return
         num = int(args[0])
     else:
         try:
@@ -41,6 +44,10 @@ async def divide(ctx, *args):
     avg = len(names) / float(num)
     out = []
     last = 0.0
+
+    if len(names) > (num * 3) or num > 50:
+        await client.say("Hmmm let's not do that, " + ctx.message.author.mention)
+        return
 
     random.shuffle(names)
     while last < len(names):
