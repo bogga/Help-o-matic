@@ -21,6 +21,24 @@ async def hello(ctx):
     await client.say("Hello " + ctx.message.author.mention + "!")
     pass
 
+@client.command(name="choose", description="chooses a random item from the given parameters, or (if no parameters) from the voice channel the invoker is in", brief="chooses randomly", pass_context=True)
+async def choose(ctx, *args):
+    items = []
+    if len(args) > 0:
+        for item in args:
+            items.extend(item)
+        await client.say("The chosen one is: " + random.choice(items))
+        return
+    else:
+        try:
+            invoker = ctx.message.author
+            items = invoker.voice.voice_channel.voice_members
+            await client.say("The chosen one is: " + random.choice(items).mention)
+            return
+        except AttributeError:
+            await client.say("You're not in a voice channel!")
+            return 
+    
 @client.command(name="divide", description="2 modes:\n1) e.g.: !divide A B C D 2 ->\nTeam 1: B, D\nTeam 2: A, C\n2) !divide N -> this splits all members of your current voice channel into N teams", brief="splits", aliases=["split"], pass_context=True)
 async def divide(ctx, *args):
     if len(args) == 1:
