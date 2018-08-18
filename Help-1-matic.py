@@ -6,6 +6,11 @@ import random
 BOT_PREFIX = "!"
 TOKEN = "NDc4NjcxMjkwMDk0MzIxNjY5.DlOHaA.aqi7y0o0xhKOK04RnzQzBQ0Ha7o"
 
+HEROES = [
+        'D.Va', 'Orisa', 'Reinhardt', 'Roadhog', 'Winston', 'Wrecking Ball', 'Zarya', 'Bastion', 'Doomfist', 'Genji', 'Hanzo', 'Junkrat', 'McCree', 'Mei',
+        'Pharah', 'Reaper', 'Solider: 76', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker', 'Ana', 'Brigitte', 'Lucio', 'Mercy', 'Moira', 'Zenyatta'
+    ]
+
 client = commands.Bot(BOT_PREFIX)
 
 @client.event
@@ -37,7 +42,28 @@ async def choose(ctx, *args):
             return
         except AttributeError:
             await client.say("You're not in a voice channel!")
-            return 
+            return
+
+@client.command(pass_context=True)
+async def whathero(ctx):
+    await client.say(ctx.message.author.mention + ", you should play " + random.choice(HEROES))
+
+@client.command(pass_context=True)
+async def whatheroes(ctx):
+    heroes = HEROES
+    try:
+        names = ctx.message.author.voice.voice_channel.voice_members
+    except AttributeError:
+        await client.say("You're not in a voice channel!")
+        return
+
+    printable = ""
+    for name in names:
+        this_hero = random.choice(heroes)
+        heroes.remove(this_hero)
+        printable += name.mention + ": " + this_hero
+    await client.say(printable)
+
     
 @client.command(name="divide", description="2 modes:\n1) e.g.: !divide A B C D 2 ->\nTeam 1: B, D\nTeam 2: A, C\n2) !divide N -> this splits all members of your current voice channel into N teams", brief="splits", aliases=["split"], pass_context=True)
 async def divide(ctx, *args):
@@ -64,8 +90,6 @@ async def divide(ctx, *args):
         names = []
         for item in args:
             names.append(item)
-        for item in names:
-            print(item + "||")
     avg = len(names) / float(num)
     out = []
     last = 0.0
