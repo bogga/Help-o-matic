@@ -26,7 +26,7 @@ async def choose(ctx, *args):
     items = []
     if len(args) > 0:
         for item in args:
-            items.extend(item)
+            items.append(item)
         await client.say("The chosen one is: " + random.choice(items))
         return
     else:
@@ -58,7 +58,9 @@ async def divide(ctx, *args):
             num = 2
         names = []
         for item in args:
-            names.extend(item)
+            names.append(item)
+        for item in names:
+            print(item + "||")
     avg = len(names) / float(num)
     out = []
     last = 0.0
