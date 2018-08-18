@@ -49,12 +49,17 @@ async def divide(ctx, *args):
         except AttributeError:
             await client.say("You're not in a voice channel!")
             return
-        num = int(args[0])
+        try:
+            num = int(args[0])
+        except ValueError:
+            await client.say("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
+            num = 2
     else:
         try:
             num = int(args[-1])
             args = args[:-1]
         except ValueError:
+            await client.say("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
             num = 2
         names = []
         for item in args:
@@ -65,7 +70,7 @@ async def divide(ctx, *args):
     out = []
     last = 0.0
 
-    if len(names) > (num * 3) or num > 50:
+    if len(names) > (num * 3) or num > 9 or num < 1:
         await client.say("Hmmm let's not do that, " + ctx.message.author.mention)
         return
 
