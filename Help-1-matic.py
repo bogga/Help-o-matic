@@ -58,14 +58,16 @@ async def whatheroes(ctx):
         return
 
     printable = ""
-    for name in names:
+    for i in range(len(names)):
         try:
             this_hero = random.choice(heroes)
         except IndexError:
             await client.say("Not enough heroes to go around! I'll allow duplicates.")
             heroes = HEROES
         heroes.remove(this_hero)
-        printable += name.mention + ": " + this_hero
+        printable += names[i].mention + ": " + this_hero
+        if i < len(names) - 1:
+            printable += "\n"
     await client.say(printable)
 
     
