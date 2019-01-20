@@ -109,17 +109,15 @@ async def whatheroes(ctx):
 @bot.command(name="divide", description="2 modes:\n1) e.g.: !divide A B C D 2 ->\nTeam 1: B, D\nTeam 2: A, C\n2) !divide N -> this splits all members of your current voice channel into N teams", brief="splits", aliases=["split"], pass_context=True)
 async def divide(ctx, *args):
     invoker = ctx.message.author
-
-    try:
-        names = invoker.voice.voice_channel.voice_members
-        for name in names:
-            print(name.mention)
-        # print("BABNANA")
-    except AttributeError:
-        await bot.say("You're not in a voice channel!")
-        return
     
     if len(args) == 1:
+        try:
+            names = invoker.voice.voice_channel.voice_members
+            # for name in names:
+            #     print(name.mention)
+        except AttributeError:
+            await bot.say("You're not in a voice channel!")
+            return
         try:
             num = int(args[0])
         except ValueError:
@@ -127,11 +125,11 @@ async def divide(ctx, *args):
             num = 2
     else:
         try:
-            num = 2
-            args = args[:-1]
+            num = int(args[-1])
         except ValueError:
             await bot.say("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
             num = 2
+            args = args[:-1]
         names = []
         for item in args:
             names.append(item)
@@ -144,9 +142,6 @@ async def divide(ctx, *args):
         return
 
     random.shuffle(names)
-    # print("AHAHAH")
-    for name in names:
-            print(name.mention)
     while last < len(names):
         out.append(names[int(last):int(last + avg)])
         last += avg
