@@ -10,9 +10,7 @@ HEROES = [
         'Pharah', 'Reaper', 'Solider: 76', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker', 'Ana', 'Brigitte', 'Lucio', 'Mercy', 'Moira', 'Zenyatta'
     ]
 
-description = '''An example bot to showcase the discord.ext.commands extension
-module.
-There are a number of utility commands being showcased here.'''
+description = '''A helper bot, designed mostly to help overwatch teams in discord channels.'''
 bot = commands.Bot(command_prefix='!', description=description)
 
 @bot.event
