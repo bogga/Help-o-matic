@@ -4,13 +4,19 @@ from discord.ext import commands
 import random
 import re
 
+from PIL import Image, ImageDraw, ImageFont
+
 BOT_PREFIX = "!"
-TOKEN = "NDc4NjcxMjkwMDk0MzIxNjY5.DlOHaA.aqi7y0o0xhKOK04RnzQzBQ0Ha7o"
+
+with open("token.txt", 'r') as token_file:
+    TOKEN = token_file.read()
 
 HEROES = [
         'D.Va', 'Orisa', 'Reinhardt', 'Roadhog', 'Winston', 'Wrecking Ball', 'Zarya', 'Ashe', 'Bastion', 'Doomfist', 'Genji', 'Hanzo', 'Junkrat', 'McCree', 'Mei',
         'Pharah', 'Reaper', 'Solider: 76', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker', 'Ana', 'Brigitte', 'Lucio', 'Mercy', 'Moira', 'Zenyatta'
     ]
+
+fnt = ImageFont.truetype("./comic.ttf", 20)
 
 client = commands.Bot(BOT_PREFIX)
 
@@ -22,17 +28,36 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
-@client.event
-async def on_message(message):
-    if message.content.startswith("I'm "):
-        string = message.content
-        joke = re.sub("I'm", "", string, count=1)
-        await client.send_message(message.channel, "Hi" + joke + "! I'm Dad!")
+# the following method stops functionality of others. Need to have a different client?
+# @client.event
+# async def on_message(message):
+#     if message.content.startswith("I'm "):
+#         string = message.content
+#         joke = re.sub("I'm", "", string, count=1)
+#         await client.send_message(message.channel, "Hi" + joke + "! I'm Dad!")
+#     elif message.author.id != client.user.id and random.randint(0, 10000) == 1:
+#         await client.send_message(message.channel, "OwO what's this x3 nuzzles " + message.author.mention + " mmm you smell sooooo goooooood")
 
 @client.command(name="hello", description="h e l l o", brief="hello", aliases=["hi"], pass_context=True)
 async def hello(ctx):
     await client.say("Hello " + ctx.message.author.mention + "!")
     pass
+
+# @client.command(name="ohno", pass_context=True)
+# async def ohno(ctx, *args):
+#     im = Image.open("./memes/ohno.png").convert("RGBA")
+#     txt = Image.new('RGBA', im.size, (255, 255, 255, 0))
+#     d = ImageDraw.Draw(txt)
+#     if len(args) > 0:
+#         message = args
+#     else:
+#         message = "creating a meme\nwithout text\n is smart"
+#     d.multiline_text((336, 16), message, font=fnt, fill=(0, 0, 0, 255))
+
+#     im.save("./memes/ohno-created.jpg")
+
+#     with open("./memes/ohno-created.jpg", 'rb') as pic:
+#         await client.send_file(ctx.message.channel, pic)
 
 @client.command(name="choose", description="chooses a random item from the given parameters, or (if no parameters) from the voice channel the invoker is in", brief="chooses randomly", pass_context=True)
 async def choose(ctx, *args):
