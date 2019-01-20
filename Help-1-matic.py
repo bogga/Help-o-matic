@@ -10,6 +10,10 @@ HEROES = [
         'Pharah', 'Reaper', 'Solider: 76', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker', 'Ana', 'Brigitte', 'Lucio', 'Mercy', 'Moira', 'Zenyatta'
     ]
 
+ADJECTIVES = [
+    'good', 'bad', 'great', 'terrible', 'a miracle', 'catastrophic', 'sexy', 'praiseworthy', 'the worst thing ever'
+]
+
 description = '''A helper bot, designed mostly to help overwatch teams in discord channels.'''
 bot = commands.Bot(command_prefix='!', description=description)
 
@@ -31,6 +35,13 @@ async def roll(dice : str):
 
     result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
     await bot.say(result)
+
+@bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion")
+async def opinion(*items : str):
+    item = ' '.join(map(str, items))
+    while item[-1] == " ":
+        item = item[:-1]
+    await bot.say("I think " + item + " is " + random.choice(ADJECTIVES))
 
 @bot.command(pass_context=True)
 async def repeat(ctx, times : int, content='repeating...'):
