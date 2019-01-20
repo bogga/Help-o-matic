@@ -2,12 +2,13 @@ import discord
 from discord import Game
 from discord.ext import commands
 import random
+import re
 
 BOT_PREFIX = "!"
 TOKEN = "NDc4NjcxMjkwMDk0MzIxNjY5.DlOHaA.aqi7y0o0xhKOK04RnzQzBQ0Ha7o"
 
 HEROES = [
-        'D.Va', 'Orisa', 'Reinhardt', 'Roadhog', 'Winston', 'Wrecking Ball', 'Zarya', 'Bastion', 'Doomfist', 'Genji', 'Hanzo', 'Junkrat', 'McCree', 'Mei',
+        'D.Va', 'Orisa', 'Reinhardt', 'Roadhog', 'Winston', 'Wrecking Ball', 'Zarya', 'Ashe', 'Bastion', 'Doomfist', 'Genji', 'Hanzo', 'Junkrat', 'McCree', 'Mei',
         'Pharah', 'Reaper', 'Solider: 76', 'Sombra', 'Symmetra', 'Torbjorn', 'Tracer', 'Widowmaker', 'Ana', 'Brigitte', 'Lucio', 'Mercy', 'Moira', 'Zenyatta'
     ]
 
@@ -20,6 +21,13 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+
+@client.event
+async def on_message(message):
+    if message.content.startswith("I'm "):
+        string = message.content
+        joke = re.sub("I'm", "", string, count=1)
+        await client.send_message(message.channel, "Hi" + joke + "! I'm Dad!")
 
 @client.command(name="hello", description="h e l l o", brief="hello", aliases=["hi"], pass_context=True)
 async def hello(ctx):
@@ -73,14 +81,18 @@ async def whatheroes(ctx):
     
 @client.command(name="divide", description="2 modes:\n1) e.g.: !divide A B C D 2 ->\nTeam 1: B, D\nTeam 2: A, C\n2) !divide N -> this splits all members of your current voice channel into N teams", brief="splits", aliases=["split"], pass_context=True)
 async def divide(ctx, *args):
-    if len(args) == 1:
-        invoker = ctx.message.author
+    invoker = ctx.message.author
 
-        try:
-            names = invoker.voice.voice_channel.voice_members
-        except AttributeError:
-            await client.say("You're not in a voice channel!")
-            return
+    try:
+        names = invoker.voice.voice_channel.voice_members
+        for name in names:
+            print(name.mention)
+        # print("BABNANA")
+    except AttributeError:
+        await client.say("You're not in a voice channel!")
+        return
+    
+    if len(args) == 1:
         try:
             num = int(args[0])
         except ValueError:
@@ -88,7 +100,7 @@ async def divide(ctx, *args):
             num = 2
     else:
         try:
-            num = int(args[-1])
+            num = 2
             args = args[:-1]
         except ValueError:
             await client.say("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
@@ -100,11 +112,14 @@ async def divide(ctx, *args):
     out = []
     last = 0.0
 
-    if len(names) > (num * 3) or num > 9 or num < 1:
+    if len(names) > (num * 3) or num > 9:
         await client.say("Hmmm let's not do that, " + ctx.message.author.mention)
         return
 
     random.shuffle(names)
+    # print("AHAHAH")
+    for name in names:
+            print(name.mention)
     while last < len(names):
         out.append(names[int(last):int(last + avg)])
         last += avg
