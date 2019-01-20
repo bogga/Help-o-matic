@@ -33,15 +33,25 @@ async def roll(dice : str):
         await bot.say('Format has to be in NdN!')
         return
 
-    result = ', '.join(str(random.randint(1, limit)) for r in range(rolls))
-    await bot.say(result)
+    if limit > 0 and rolls > 0 and limit < 500 and rolls < 500:
+        roll_results = [random.randint(1, limit) for r in range(rolls)]
+        result = ', '.join([str(x) for x in roll_results])
+        if rolls < 2:
+            await bot.say(result)
+        else:
+            await bot.say(result + "\nTotal: " + str(sum(roll_results)))
+    else:
+        await bot.say('Illegal combination!')
 
 @bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion")
 async def opinion(*items : str):
     item = ' '.join(map(str, items))
     while item[-1] == " ":
         item = item[:-1]
-    await bot.say("I think " + item + " is " + random.choice(ADJECTIVES))
+    if item == "Adam":
+        await bot.say("I think Adam is a genius. Christ, what a man.")
+    else:
+        await bot.say("I think " + item + " is " + random.choice(ADJECTIVES))
 
 @bot.command(pass_context=True)
 async def repeat(ctx, times : int, content='repeating...'):
