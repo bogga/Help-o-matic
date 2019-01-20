@@ -60,7 +60,7 @@ async def choose(ctx, *args):
             await bot.say("You're not in a voice channel!")
             return
 
-@bot.command(pass_context=True, brief="chooses an overwatch hero for you to play", description=brief)
+@bot.command(pass_context=True, brief="chooses an overwatch hero for you to play", description="chooses an overwatch hero for you to play")
 async def whathero(ctx):
     await bot.say(ctx.message.author.mention + ", you should play " + random.choice(HEROES))
 
