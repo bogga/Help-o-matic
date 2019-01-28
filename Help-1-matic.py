@@ -44,18 +44,19 @@ async def spell(*names : str):
         sep = "=========================="
         response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11])
         await bot.say(sep + "\n" + response)
-        if len(details[1]) >= 2000:
-            remaining = len(details[1])
+        full = details[1]
+        if len(full) >= 2000:
+            remaining = len(full)
             point = 2000
             await bot.say("\nFull:")
             while remaining > 0:
-                while details[1][point] != " ":
+                while full[point] != " ":
                     point -= 1
-                await bot.say(details[1][:point])
-                details[1] = details[1][point + 1:]
-                remaining = len(details[1])
+                await bot.say(full[:point])
+                full = full[point + 1:]
+                remaining = len(full)
                 if remaining < 2000:
-                    await bot.say(details[1])
+                    await bot.say(full)
                     await bot.say(sep)
                     break
         else:
