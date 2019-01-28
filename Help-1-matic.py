@@ -36,8 +36,13 @@ def get_spell(name):
 async def spell(*names : str):
     for name in names:
         details = get_spell(name)
-        response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11])
-        await bot.say(response)
+        if details is None:
+            while name[-1] is " ":
+                name = name[:-1]
+            await bot.say(name + " not found!")
+        sep = "=========================="
+        response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}\nFull: {full}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11], full=details[1])
+        await bot.say(sep + "\n" + response + "\n" + sep)
 
 @bot.command()
 async def roll(dice : str):
