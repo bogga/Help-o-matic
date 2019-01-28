@@ -56,6 +56,7 @@ async def spell(*names : str):
                 remaining = len(details[1])
                 if remaining < 2000:
                     await bot.say(details[1])
+                    await boy.say(sep)
                     break
         else:
             await bot.say("\nFull: {full}".format(full=details[1]) + "\n" + sep)
