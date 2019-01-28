@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import random
+import random, sqlite3, re
 
 with open("token.txt", 'r') as token_file:
     TOKEN = token_file.read()
@@ -14,6 +14,9 @@ ADJECTIVES = [
     'good', 'bad', 'great', 'terrible', 'a miracle', 'catastrophic', 'sexy', 'praiseworthy', 'the worst thing ever'
 ]
 
+conn = sqlite3.connect("./spells.db")
+cursor = conn.cursor()
+
 description = '''A helper bot, designed mostly to help overwatch teams in discord channels.'''
 bot = commands.Bot(command_prefix='!', description=description)
 
@@ -23,6 +26,18 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+
+def get_spell(name):
+    name = re.sub("[^a-zA-z0-9 ]", "", name)
+    ans = cursor.execute("SELECT * FROM spells WHERE spell_name IS \"" + name.lower() + "\"").fetchone()
+    return ans
+
+@bot.command()
+async def spell(*names : str):
+    for name in names:
+        details = get_spell(name)
+        response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11])
+        await bot.say(response)
 
 @bot.command()
 async def roll(dice : str):
