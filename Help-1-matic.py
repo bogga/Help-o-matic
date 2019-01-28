@@ -40,6 +40,7 @@ async def spell(*names : str):
             while name[-1] is " ":
                 name = name[:-1]
             await bot.say(name + " not found!")
+            return
         sep = "=========================="
         response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}\nFull: {full}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11], full=details[1])
         await bot.say(sep + "\n" + response + "\n" + sep)
