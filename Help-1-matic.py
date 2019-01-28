@@ -44,7 +44,21 @@ async def spell(*names : str):
         sep = "=========================="
         response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11])
         await bot.say(sep + "\n" + response)
-        await bot.say("\nFull: {full}".format(full=details[1]) + "\n" + sep)
+        if len(details[1]) >= 2000:
+            remaining = len(details[1])
+            point = 2000
+            await bot.say("\nFull:")
+            while remaining > 0:
+                while details[1][point] != " ":
+                    point -= 1
+                await bot.say(details[1][:point])
+                details[1] = details[1][point + 1:]
+                remaining = len(details[1])
+                if remaining < 2000:
+                    await bot.say(details[1])
+                    break
+        else:
+            await bot.say("\nFull: {full}".format(full=details[1]) + "\n" + sep)
 
 @bot.command()
 async def roll(dice : str):
