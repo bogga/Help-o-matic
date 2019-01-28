@@ -50,6 +50,8 @@ async def opinion(*items : str):
         item = item[:-1]
     if item == "Adam":
         await bot.say("I think Adam is a genius. Christ, what a man.")
+    elif item == "Alex":
+        await bot.say("I think Alex is *sick as eggs*.")
     else:
         await bot.say("I think " + item + " is " + random.choice(ADJECTIVES))
 
