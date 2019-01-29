@@ -32,7 +32,7 @@ def get_spell(name):
     ans = cursor.execute("SELECT * FROM spells WHERE spell_name IS \"" + name.lower() + "\"").fetchone()
     return ans
 
-@bot.command()
+@bot.command(name="spell", brief="gives spell details from PFSRD", description="gives important details from spells from PFSRD - no ACG.")
 async def spell(*names : str):
     for name in names:
         details = get_spell(name)
@@ -62,9 +62,8 @@ async def spell(*names : str):
         else:
             await bot.say("\nFull: {full}".format(full=details[1]) + "\n" + sep)
 
-@bot.command()
+@bot.command(name="roll", brief="rolls a dice in NdN format", description="rolls a dice in NdN format. E.g. !roll 3d6")
 async def roll(dice : str):
-    """Rolls a dice in NdN format."""
     try:
         rolls, limit = map(int, dice.split('d'))
     except Exception:
