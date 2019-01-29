@@ -28,7 +28,7 @@ async def on_ready():
     print('------')
 
 def get_spell(name):
-    name = re.sub("[^a-zA-z0-9 ]", "", name)
+    name = re.sub("[^a-zA-z0-9// ]", "", name)
     ans = cursor.execute("SELECT * FROM spells WHERE spell_name IS \"" + name.lower() + "\"").fetchone()
     return ans
 
