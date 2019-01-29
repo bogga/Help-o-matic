@@ -28,19 +28,33 @@ async def on_ready():
     print('------')
 
 def get_spell(name):
-    name = re.sub("[^a-zA-z0-9 ]", "", name)
+    name = re.sub("[^a-zA-z0-9// ]", "", name)
     ans = cursor.execute("SELECT * FROM spells WHERE spell_name IS \"" + name.lower() + "\"").fetchone()
+    return ans
+
+def find_spell_name(name):
+    name = re.sub("[^a-zA-z0-9// ]", "", name)
+    ans = cursor.execute("SELECT spell_name FROM spells WHERE spell_name LIKE \"%" + name.lower() + "%\"").fetchall()
     return ans
 
 @bot.command()
 async def spell(*names : str):
     for name in names:
         details = get_spell(name)
+        
         if details is None:
+            alts = find_spell_name(name)
             while name[-1] is " ":
                 name = name[:-1]
-            await bot.say(name + " not found!")
+            alt_names = ""
+            for item in alts:
+                alt_names = alt_names + "• {name}\n".format(name=item)
+            speech = name + " not found!"
+            if alts is not None:
+                speech.append(" Did you mean: ")
+            await bot.say(speech)
             continue
+            
         sep = "=========================="
         response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11])
         await bot.say(sep + "\n" + response)
