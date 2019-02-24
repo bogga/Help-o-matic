@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import random, sqlite3, re
+import random, sqlite3, re, FlagHandler
 
 with open("token.txt", 'r') as token_file:
     TOKEN = token_file.read()
@@ -14,8 +14,8 @@ ADJECTIVES = [
     'good', 'bad', 'great', 'terrible', 'a miracle', 'catastrophic', 'sexy', 'praiseworthy', 'the worst thing ever'
 ]
 
-conn = sqlite3.connect("./spells.db")
-cursor = conn.cursor()
+spells_conn = sqlite3.connect("./spells.db")
+spells_cursor = spells_conn.cursor()
 
 description = '''A helper bot, designed mostly to help overwatch teams in discord channels.'''
 bot = commands.Bot(command_prefix='!', description=description)
@@ -29,7 +29,7 @@ async def on_ready():
 
 def get_spell(name):
     name = re.sub("[^a-zA-z0-9// ]", "", name)
-    ans = cursor.execute("SELECT * FROM spells WHERE spell_name IS \"" + name.lower() + "\"").fetchone()
+    ans = spells_cursor.execute("SELECT * FROM spells WHERE spell_name IS \"" + name.lower() + "\"").fetchone()
     return ans
 
 @bot.command(name="spell", brief="gives spell details from PFSRD", description="gives important details from spells from PFSRD - no ACG.")
@@ -176,7 +176,7 @@ async def divide(ctx, *args):
     out = []
     last = 0.0
 
-    if len(names) > (num * 3) or num > 9:
+    if num > 9:
         await bot.say("Hmmm let's not do that, " + ctx.message.author.mention)
         return
 
