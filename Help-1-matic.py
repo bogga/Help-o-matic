@@ -165,7 +165,7 @@ async def divide(ctx, *args):
     else:
         try:
             num = int(args[-1])
-        except ValueError:
+        except (ValueError, IndexError) as e:
             await bot.say("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
             num = 2
             args = args[:-1]
