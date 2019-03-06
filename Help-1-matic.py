@@ -92,13 +92,13 @@ async def opinion(*items : str):
     else:
         await bot.say("I think " + item + " is " + random.choice(ADJECTIVES))
 
-@bot.command(pass_context=True)
-async def repeat(ctx, times : int, content='repeating...'):
-    """Repeats a message multiple times."""
-    if ctx.message.author.name != "Adam":
-        if times > 5: times = 5
-    for i in range(times):
-        await bot.say(content)
+# @bot.command(pass_context=True)
+# async def repeat(ctx, times : int, content='repeating...'):
+#     """Repeats a message multiple times."""
+#     if ctx.message.author.name != "Adam":
+#         if times > 5: times = 5
+#     for _ in range(times):
+#         await bot.say(content)
 
 @bot.command(name="choose", description="chooses a random item from the given parameters, or (if no parameters) from the voice channel the invoker is in", brief="chooses randomly", pass_context=True)
 async def choose(ctx, *args):
