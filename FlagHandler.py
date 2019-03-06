@@ -23,7 +23,7 @@ def get_flags_re(string, flags):
 
     return data
 
-a = "!bet -name OW -multi 2 -options 'win' 'lose'"
-af = ["name", "multi", "options"]
-for item in get_flags(a, af):
-    print(item)
+# a = "!bet -name OW -multi 2 -options 'win' 'lose'"
+# af = ["name", "multi", "options"]
+# for item in get_flags(a, af):
+#     print(item)
