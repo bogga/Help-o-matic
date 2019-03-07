@@ -110,7 +110,7 @@ async def addOpinion(ctx, *items : str):
     item = ' '.join(map(str, items))
     while item[-1] == " ":
         item = item[:-1]
-    item = re.sub("[^a-zA-Z0-9]", "", item)
+    item = re.sub("[^a-zA-Z0-9 ',\"]", "", item)
     item_nums = re.sub("[^0-9]", "", item)
     if items == None or items.count(" ") == len(items) or item_nums == item:
         await bot.say("Bad opinion! Wrong! Stop!")
