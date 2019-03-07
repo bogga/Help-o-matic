@@ -17,6 +17,8 @@ ADJECTIVES = [
 spells_conn = sqlite3.connect("./spells.db")
 spells_cursor = spells_conn.cursor()
 
+adj_conn = sqlite3.connect("./adjectives.db")
+
 description = '''A helper bot, designed mostly to help overwatch teams in discord channels.'''
 bot = commands.Bot(command_prefix='!', description=description)
 
@@ -26,6 +28,12 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+
+    c = adj_conn.cursor()
+    if c.execute("SELECT * FROM adjectives").fetchall() == []:
+        for i, adj in enumerate(ADJECTIVES):
+            c.execute("INSERT INTO adjectives VALUES ({0}, 'base', '{1}')".format(i, adj))
+        adj_conn.commit()
 
 def get_spell(name):
     name = re.sub("[^a-zA-z0-9// ]", "", name)
@@ -80,8 +88,27 @@ async def roll(dice : str):
     else:
         await bot.say('Illegal combination!')
 
-@bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion")
-async def opinion(*items : str):
+@bot.command(name="addOpinion", description="adds an option to the bot's opinions (for this server)", pass_context=True, no_pm=True)
+async def addOpinion(ctx, *items : str):
+    item = ' '.join(map(str, items))
+    while item[-1] == " ":
+        item = item[:-1]
+    item = re.sub("[^a-zA-Z0-9]", "", item)
+    if items == None or items.count(" ") == len(items):
+        await bot.say("Bad opinion! Wrong! Stop!")
+        return
+    c = adj_conn.cursor()
+    server_id = ctx.message.server.id
+    if c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS '{1}'".format(server_id, item)).fetchall() != []:
+        await bot.say("Opinion already found")
+        return
+    opinion_id = c.execute("SELECT MAX(ID) from adjectives").fetchone()[0] + 1
+    c.execute("INSERT INTO adjectives VALUES ({0}, '{1}', '{2}')".format(opinion_id, server_id, item))
+    adj_conn.commit()
+    await bot.say("Added {0} to potential opinions for this server".format(item))
+
+@bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion", pass_context=True)
+async def opinion(ctx, *items : str):
     item = ' '.join(map(str, items))
     while item[-1] == " ":
         item = item[:-1]
@@ -90,7 +117,10 @@ async def opinion(*items : str):
     elif item == "Alex":
         await bot.say("I think Alex is *sick as eggs*.")
     else:
-        await bot.say("I think " + item + " is " + random.choice(ADJECTIVES))
+        c = adj_conn.cursor()
+        server_id = ctx.message.server.id
+        res = c.execute("SELECT adjective FROM adjectives WHERE server_id IS '{0}' OR server_id IS 'base'".format(server_id)).fetchall()
+        await bot.say("I think " + item + " is " + random.choice(res)[0])
 
 # @bot.command(pass_context=True)
 # async def repeat(ctx, times : int, content='repeating...'):
