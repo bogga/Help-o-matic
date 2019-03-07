@@ -96,6 +96,15 @@ async def roll(dice : str):
     else:
         await bot.say('Illegal combination!')
 
+@bot.command(name="listOpinions", description="lists all potential opinions on this server", pass_context=True, no_pm=True)
+async def listOpinions(ctx):
+    c = adj_conn.cursor()
+    server_id = ctx.message.server.id
+    res = c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base')".format(server_id)).fetchall()
+    opinions = [item[0] for item in res]
+    string = ", ".join(opinions)
+    await bot.say("Here are my opinions available on this server:\n{0}".format(string))
+
 @bot.command(name="addOpinion", description="adds an option to the bot's opinions (for this server)", pass_context=True, no_pm=True)
 async def addOpinion(ctx, *items : str):
     item = ' '.join(map(str, items))
@@ -115,7 +124,7 @@ async def addOpinion(ctx, *items : str):
     adj_conn.commit()
     await bot.say("Added {0} to potential opinions for this server".format(item))
 
-@bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion", pass_context=True)
+@bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion", pass_context=True, no_pm=True)
 async def opinion(ctx, *items : str):
     item = ' '.join(map(str, items))
     while item[-1] == " ":
