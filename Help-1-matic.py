@@ -139,13 +139,14 @@ async def opinion(ctx, *items : str):
         res = c.execute("SELECT adjective FROM adjectives WHERE server_id IS '{0}' OR server_id IS 'base'".format(server_id)).fetchall()
         await bot.say("I think " + item + " is " + random.choice(res)[0])
 
-# @bot.command(pass_context=True)
-# async def repeat(ctx, times : int, content='repeating...'):
-#     """Repeats a message multiple times."""
-#     if ctx.message.author.name != "Adam":
-#         if times > 5: times = 5
-#     for _ in range(times):
-#         await bot.say(content)
+@bot.command(pass_context=True)
+async def repeat(ctx, times : int, content='repeating...'):
+    """Repeats a message multiple times."""
+    if ctx.message.author.name != "Adam":
+        for _ in range(times):
+            await bot.say(content)
+    else:
+        await bot.say("I'm sorry Dave, I'm afraid I can't do that.")
 
 @bot.command(name="choose", description="chooses a random item from the given parameters, or (if no parameters) from the voice channel the invoker is in", brief="chooses randomly", pass_context=True)
 async def choose(ctx, *args):
