@@ -168,7 +168,7 @@ async def opinion(ctx, *items : str):
 @bot.command(pass_context=True)
 async def repeat(ctx, times : int, content='repeating...'):
     """Repeats a message multiple times."""
-    if ctx.message.author.name != "Adam":
+    if ctx.message.author.name == "Adam":
         for _ in range(times):
             await bot.say(content)
     else:
