@@ -100,7 +100,7 @@ async def roll(dice : str):
 async def listOpinions(ctx):
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
-    res = c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base')".format(server_id)).fetchall()
+    res = c.execute("SELECT adjective FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base')".format(server_id)).fetchall()
     opinions = [item[0] for item in res]
     string = ", ".join(opinions)
     await bot.say("Here are my opinions available on this server:\n{0}".format(string))
