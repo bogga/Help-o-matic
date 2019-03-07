@@ -30,10 +30,18 @@ async def on_ready():
     print('------')
 
     c = adj_conn.cursor()
-    if c.execute("SELECT * FROM adjectives").fetchall() == []:
+    try:
+        res = c.execute("SELECT * FROM adjectives").fetchall()
+        if res == []:
+            for i, adj in enumerate(ADJECTIVES):
+                c.execute("INSERT INTO adjectives VALUES ({0}, 'base', '{1}')".format(i, adj))
+            adj_conn.commit()
+    except sqlite3.OperationalError:
+        c.execute("CREATE TABLE adjectives (ID INTEGER PRIMARY KEY, server_id varchar(255) NOT NULL, adjective varchar(255) NOT NULL)")
         for i, adj in enumerate(ADJECTIVES):
             c.execute("INSERT INTO adjectives VALUES ({0}, 'base', '{1}')".format(i, adj))
         adj_conn.commit()
+    
 
 def get_spell(name):
     name = re.sub("[^a-zA-z0-9// ]", "", name)
