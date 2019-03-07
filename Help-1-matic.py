@@ -117,11 +117,11 @@ async def addOpinion(ctx, *items : str):
         return
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
-    if c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS '{1}'".format(server_id, item)).fetchall() != []:
+    if c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchall() != []:
         await bot.say("Opinion already found")
         return
     opinion_id = c.execute("SELECT MAX(ID) from adjectives").fetchone()[0] + 1
-    c.execute("INSERT INTO adjectives VALUES ({0}, '{1}', '{2}')".format(opinion_id, server_id, item))
+    c.execute("INSERT INTO adjectives VALUES ({0}, '{1}', \"{2}\")".format(opinion_id, server_id, item))
     adj_conn.commit()
     await bot.say("Added {0} to potential opinions for this server".format(item))
 
