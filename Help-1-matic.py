@@ -166,9 +166,10 @@ async def opinion(ctx, *items : str):
         await bot.say("I think " + item + " is " + random.choice(res)[0])
 
 @bot.command(pass_context=True)
-async def repeat(ctx, times : int, content='repeating...'):
+async def repeat(ctx, times : int, *content : str):
+    content = ' '.join(content)
     """Repeats a message multiple times."""
-    if ctx.message.author.name == "Adam":
+    if ctx.message.author.name == "Adam" and len(content) > 0:
         for _ in range(times):
             await bot.say(content)
     else:
