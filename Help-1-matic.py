@@ -128,6 +128,28 @@ async def addOpinion(ctx, *items : str):
     adj_conn.commit()
     await bot.say("Added {0} to potential opinions for this server".format(item))
 
+@bot.command(name="removeOpinion", description="removes an option from the bot's opinions (for this server)", pass_context=True, no_pm=True)
+async def removeOpinion(ctx, *items : str):
+    item = ' '.join(map(str, items))
+    while item[-1] == " ":
+        item = item[:-1]
+    item = re.sub("[^a-zA-Z0-9 ',\"]", "", item)
+    item_nums = re.sub("[^0-9]", "", item)
+    if len(item) > 254:
+        await bot.say("Too long winky face")
+        return
+    if items == None or items.count(" ") == len(items) or item_nums == item:
+        await bot.say("Bad opinion! Wrong! Stop!")
+        return
+    c = adj_conn.cursor()
+    server_id = ctx.message.server.id
+    if c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchall() == []:
+        await bot.say("Opinion not found")
+        return
+    c.execute("DELETE FROM adjectives WHERE adjective IS \"{0}\" AND server_id IS '{1}'".format(item, server_id))
+    adj_conn.commit()
+    await bot.say("Removed {0} as an option for this server".format(item))
+
 @bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion", pass_context=True, no_pm=True)
 async def opinion(ctx, *items : str):
     item = ' '.join(map(str, items))
