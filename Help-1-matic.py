@@ -152,6 +152,7 @@ async def removeOpinion(ctx, *items : str):
 
 @bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion", pass_context=True, no_pm=True)
 async def opinion(ctx, *items : str):
+    name = ctx.message.server.me.nick
     item = ' '.join(map(str, items))
     while item[-1] == " ":
         item = item[:-1]
@@ -159,6 +160,8 @@ async def opinion(ctx, *items : str):
         await bot.say("I think Adam is a genius. Christ, what a man.")
     elif item == "Alex":
         await bot.say("I think Alex is *sick as eggs*.")
+    elif item == name:
+        await bot.say("I think I'm great. I also think I was designed by a genius.")
     else:
         c = adj_conn.cursor()
         server_id = ctx.message.server.id
