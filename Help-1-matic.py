@@ -41,6 +41,11 @@ async def on_ready():
         for i, adj in enumerate(ADJECTIVES):
             c.execute("INSERT INTO adjectives VALUES ({0}, 'base', '{1}')".format(i, adj))
         adj_conn.commit()
+
+    try:
+        res = c.execute("SELECT * FROM adjective_authors").fetchone()
+    except sqlite3.OperationalError:
+        c.execute("CREATE TABLE adjective_authors (ID INTEGER UNIQUE, discordID varchar(255), FOREIGN KEY(ID) REFERENCES adjectives(ID))")
     
 
 def get_spell(name):
@@ -105,6 +110,38 @@ async def listOpinions(ctx):
     string = ", ".join(opinions)
     await bot.say("Here are my opinions available on this server:\n{0}".format(string))
 
+@bot.command(name="whoAdded", description="returns the user who added that option to potential opinions", pass_context=True, no_pm=True)
+async def whoAdded(ctx, *items : str):
+    item = ' '.join(map(str, items))
+    while item[-1] == " ":
+        item = item[:-1]
+    item = re.sub("[^a-zA-Z0-9 ',\"]", "", item)
+    item_nums = re.sub("[^0-9]", "", item)
+    if len(item) > 254:
+        await bot.say("Too long winky face")
+        return
+    if items == None or items.count(" ") == len(items) or item_nums == item:
+        await bot.say("Bad opinion! Wrong! Stop!")
+        return
+    c = adj_conn.cursor()
+    server_id = ctx.message.server.id
+    res = c.execute("SELECT ID FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchone()
+    if res == []:
+        await bot.say("Opinion not found!")
+        return
+    print(res)
+    opinionID = int(res[0])
+    authorID = c.execute("SELECT discordID from adjective_authors WHERE ID IS '{0}'".format(opinionID)).fetchone()
+    if authorID != []:
+        c = discord.Client()
+        try:
+            name = await c.get_user_info(authorID[0]).mention
+            await bot.say("Option {0} added by {1}".format(item, name))
+        except discord.NotFound:
+            await bot.say("User ID no longer exists!")
+    else:
+        await bot.say("Sorry, the archives are incomplete.")
+
 @bot.command(name="addOpinion", description="adds an option to the bot's opinions (for this server)", pass_context=True, no_pm=True)
 async def addOpinion(ctx, *items : str):
     item = ' '.join(map(str, items))
@@ -125,6 +162,7 @@ async def addOpinion(ctx, *items : str):
         return
     opinion_id = c.execute("SELECT MAX(ID) from adjectives").fetchone()[0] + 1
     c.execute("INSERT INTO adjectives VALUES ({0}, '{1}', \"{2}\")".format(opinion_id, server_id, item))
+    c.execute("INSERT INTO adjective_authors VALUES ({0}, '{1}')".format(opinion_id, ctx.message.author.id))
     adj_conn.commit()
     await bot.say("Added {0} to potential opinions for this server".format(item))
 
