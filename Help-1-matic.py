@@ -131,7 +131,7 @@ async def whoAdded(ctx, *items : str):
         return
     opinionID = int(res[0])
     authorID = c.execute("SELECT discordID from adjective_authors WHERE ID IS '{0}'".format(opinionID)).fetchone()
-    if authorID != []:
+    if authorID != None:
         name = authorID[0]
         await bot.say("Option {0} added by {1}".format(item, name))
     else:
