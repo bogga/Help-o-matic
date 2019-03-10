@@ -126,19 +126,14 @@ async def whoAdded(ctx, *items : str):
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
     res = c.execute("SELECT ID FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchone()
-    if res == []:
+    if res == None:
         await bot.say("Opinion not found!")
         return
-    print(res)
     opinionID = int(res[0])
     authorID = c.execute("SELECT discordID from adjective_authors WHERE ID IS '{0}'".format(opinionID)).fetchone()
     if authorID != []:
-        c = discord.Client()
-        try:
-            name = await c.get_user_info(authorID[0]).mention
-            await bot.say("Option {0} added by {1}".format(item, name))
-        except discord.NotFound:
-            await bot.say("User ID no longer exists!")
+        name = authorID[0]
+        await bot.say("Option {0} added by {1}".format(item, name))
     else:
         await bot.say("Sorry, the archives are incomplete.")
 
@@ -162,7 +157,7 @@ async def addOpinion(ctx, *items : str):
         return
     opinion_id = c.execute("SELECT MAX(ID) from adjectives").fetchone()[0] + 1
     c.execute("INSERT INTO adjectives VALUES ({0}, '{1}', \"{2}\")".format(opinion_id, server_id, item))
-    c.execute("INSERT INTO adjective_authors VALUES ({0}, '{1}')".format(opinion_id, ctx.message.author.id))
+    c.execute("INSERT INTO adjective_authors VALUES ({0}, '{1}')".format(opinion_id, ctx.message.author.mention))
     adj_conn.commit()
     await bot.say("Added {0} to potential opinions for this server".format(item))
 
@@ -181,10 +176,13 @@ async def removeOpinion(ctx, *items : str):
         return
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
-    if c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchall() == []:
+    adjID = c.execute("SELECT ID FROM adjectives WHERE server_id IS '{0}' AND adjective IS \"{1}\"".format(server_id, item)).fetchall()
+    if adjID == []:
         await bot.say("Opinion not found")
         return
+    adjID = adjID[0][0]
     c.execute("DELETE FROM adjectives WHERE adjective IS \"{0}\" AND server_id IS '{1}'".format(item, server_id))
+    c.execute("DELETE FROM adjective_authors WHERE ID is {0}".format(adjID))
     adj_conn.commit()
     await bot.say("Removed {0} as an option for this server".format(item))
 
