@@ -108,7 +108,21 @@ async def listOpinions(ctx):
     res = c.execute("SELECT adjective FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base')".format(server_id)).fetchall()
     opinions = [item[0] for item in res]
     string = ", ".join(opinions)
-    await bot.say("Here are my opinions available on this server:\n{0}".format(string))
+    message = "Here are my opinions available on this server:\n{0}".format(string)
+    if len(message) >= 2000:
+            remaining = len(message)
+            point = 2000
+            while remaining > 0:
+                while message[point] != " ":
+                    point -= 1
+                await bot.say(message[:point])
+                message = message[point + 1:]
+                remaining = len(message)
+                if remaining < 2000:
+                    await bot.say(message)
+                    break
+    else:
+        await bot.say(message)
 
 @bot.command(name="whoAdded", description="returns the user who added that option to potential opinions", pass_context=True, no_pm=True)
 async def whoAdded(ctx, *items : str):
