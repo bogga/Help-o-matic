@@ -101,6 +101,20 @@ async def roll(dice : str):
     else:
         await bot.say('Illegal combination!')
 
+@bot.command(name="bthis", description="swaps all vowels with :b:", brief=":b: :b: :b:")
+async def bthis(*items):
+    item = ' '.join(map(str, items))
+    new_str = ""
+    for letter in item:
+        if letter in "aeiou":
+            new_str += ":b:"
+        else:
+            new_str += letter
+    if len(new_str) > 2000:
+        await bot.say("TOO LONG")
+        return
+    await bot.say(new_str)
+
 @bot.command(name="listOpinions", description="lists all potential opinions on this server", pass_context=True, no_pm=True)
 async def listOpinions(ctx):
     c = adj_conn.cursor()
