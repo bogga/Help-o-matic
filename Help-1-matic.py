@@ -101,6 +101,21 @@ async def roll(dice : str):
     else:
         await bot.say('Illegal combination!')
 
+@bot.command(name="dumbQuote", description="says the thing again as a dumb quote", brief="dUMbqUOTe")
+async def dumbQuote(*items):
+    item = ' '.join(map(str, items))
+    item = item.lower()
+    new_str = ""
+    for letter in item:
+        if random.randint(0, 100) < 50:
+            new_str += letter.upper()
+        else:
+            new_str += letter
+    if len(new_str) > 2000:
+        await bot.say("TOO LONG")
+        return
+    await bot.say(new_str)
+
 @bot.command(name="bthis", description="swaps all vowels with :b:", brief=":b: :b: :b:")
 async def bthis(*items):
     item = ' '.join(map(str, items))
