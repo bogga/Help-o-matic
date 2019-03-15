@@ -138,7 +138,7 @@ async def listOpinions(ctx):
     else:
         await bot.say(message)
 
-@bot.command(name="whoAdded", description="returns the user who added that option to potential opinions", pass_context=True, no_pm=True)
+@bot.command(name="whoAdded", description="returns the user who added that option to potential opinions", brief="returns the user who added that option to potential opinions", pass_context=True, no_pm=True)
 async def whoAdded(ctx, *items : str):
     item = ' '.join(map(str, items))
     while item[-1] == " ":
@@ -165,7 +165,7 @@ async def whoAdded(ctx, *items : str):
     else:
         await bot.say("Sorry, the archives are incomplete.")
 
-@bot.command(name="addOpinion", description="adds an option to the bot's opinions (for this server)", pass_context=True, no_pm=True)
+@bot.command(name="addOpinion", description="adds an option to the bot's opinions (for this server)", brief="adds an option to the bot's opinions (for this server)", pass_context=True, no_pm=True)
 async def addOpinion(ctx, *items : str):
     item = ' '.join(map(str, items))
     while item[-1] == " ":
@@ -189,7 +189,7 @@ async def addOpinion(ctx, *items : str):
     adj_conn.commit()
     await bot.say("Added {0} to potential opinions for this server".format(item))
 
-@bot.command(name="removeOpinion", description="removes an option from the bot's opinions (for this server)", pass_context=True, no_pm=True)
+@bot.command(name="removeOpinion", description="removes an option from the bot's opinions (for this server)", brief="removes an option from the bot's opinions (for this server)", pass_context=True, no_pm=True)
 async def removeOpinion(ctx, *items : str):
     item = ' '.join(map(str, items))
     while item[-1] == " ":
@@ -232,7 +232,7 @@ async def opinion(ctx, *items : str):
         res = c.execute("SELECT adjective FROM adjectives WHERE server_id IS '{0}' OR server_id IS 'base'".format(server_id)).fetchall()
         await bot.say("I think " + item + " is " + random.choice(res)[0])
 
-@bot.command(pass_context=True)
+@bot.command(name="repeat", description="repeats the next bits (for God King Adam only)", brief="not for you", pass_context=True)
 async def repeat(ctx, times : int, *content : str):
     content = ' '.join(content)
     """Repeats a message multiple times."""
