@@ -101,6 +101,12 @@ async def roll(dice : str):
     else:
         await bot.say('Illegal combination!')
 
+@bot.command(name="invite", description="replies with an invite link for the bot to join your server!", brief="replies with an invite link")
+async def invite():
+    link = "https://discordapp.com/oauth2/authorize?client_id={0}&scope=bot&permissions=0".format(bot.user.id)
+    await bot.say("Follow this link to add me to your server!")
+    await bot.say(link)
+
 @bot.command(name="dumbQuote", description="says the thing again as a dumb quote", brief="dUMbqUOTe")
 async def dumbQuote(*items):
     item = ' '.join(map(str, items))
