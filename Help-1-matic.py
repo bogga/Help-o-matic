@@ -122,7 +122,21 @@ async def dumbQuote(*items):
         return
     await bot.say(new_str)
 
-@bot.command(name="bthis", description="swaps all vowels with :b:", brief=":b: :b: :b:")
+@bot.command(name="emojify", description="swaps all letters with their emoji version", brief="EMOJI")
+async def emojify(*items):
+    item = ' '.join(map(str, items))
+    new_str = ""
+    for letter in item:
+        if letter.isalpha():
+            new_str += ":regional_indicator_{0}:".format(letter.lower())
+        else:
+            new_str += letter
+    if len(new_str) > 2000:
+        await bot.say("TOO LONG")
+        return
+    await bot.say(new_str)
+
+@bot.command(name="bthis", description="swaps all vowels with their respective emoji", brief=":b: :b: :b:")
 async def bthis(*items):
     item = ' '.join(map(str, items))
     new_str = ""
