@@ -127,8 +127,8 @@ async def bthis(*items):
     item = ' '.join(map(str, items))
     new_str = ""
     for letter in item:
-        if letter in "aeiou":
-            new_str += ":b:"
+        if letter.lower() in "aeiou":
+            new_str += ":{0}:".format(letter.lower())
         else:
             new_str += letter
     if len(new_str) > 2000:
