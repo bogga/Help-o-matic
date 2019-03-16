@@ -128,7 +128,7 @@ async def bthis(*items):
     new_str = ""
     for letter in item:
         if letter.lower() in "aeiou":
-            new_str += ":{0}:".format(letter.lower())
+            new_str += ":regional_indicator_{0}:".format(letter.lower())
         else:
             new_str += letter
     if len(new_str) > 2000:
