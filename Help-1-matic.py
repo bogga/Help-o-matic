@@ -117,9 +117,6 @@ async def image(*items):
     soup = BeautifulSoup(content, features="lxml")
     images = soup.find_all('a', {"class":True})
 
-    with open("./file.html", mode="w+", encoding="UTF-8") as out:
-        out.write(soup.prettify())
-
     images = [i for i in images if "thumb" in i['class']]
 
     if len(images) > 0:
@@ -136,9 +133,6 @@ async def randomImage(*items):
     content = urllib.request.urlopen(url)
     soup = BeautifulSoup(content, features="lxml")
     images = soup.find_all('a', {"class":True})
-
-    with open("./file.html", mode="w+", encoding="UTF-8") as out:
-        out.write(soup.prettify())
 
     images = [i for i in images if "thumb" in i['class']]
 
