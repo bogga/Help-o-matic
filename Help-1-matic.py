@@ -122,7 +122,7 @@ async def image(*items):
             images = [i for i in images if "thumb" in i['class']]
 
             if len(images) > 0:
-                await bot.say("yeet\n" + images[0]['href'])
+                await bot.say(images[0]['href'])
                 return
 
     await bot.say("Couldn't find anything!")
