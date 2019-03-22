@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-import random, sqlite3, re, FlagHandler
+import random, sqlite3, re, FlagHandler, urllib.request
+from bs4 import BeautifulSoup
 
 with open("token.txt", 'r') as token_file:
     TOKEN = token_file.read()
@@ -106,6 +107,47 @@ async def invite():
     link = "https://discordapp.com/oauth2/authorize?client_id={0}&scope=bot&permissions=0".format(bot.user.id)
     await bot.say("Follow this link to add me to your server!")
     await bot.say(link)
+
+@bot.command(name="image", brief="returns an image!", description="returns the first image that you searched for!")
+async def image(*items):
+    item = ' '.join(map(str, items))
+    item = item.replace(" ", "%20")
+    url = "https://www.bing.com/images/search?q={0}".format(item)
+    content = urllib.request.urlopen(url)
+    soup = BeautifulSoup(content, features="lxml")
+    images = soup.find_all('a', {"class":True})
+
+    with open("./file.html", mode="w+", encoding="UTF-8") as out:
+        out.write(soup.prettify())
+
+    images = [i for i in images if "thumb" in i['class']]
+
+    if len(images) > 0:
+        await bot.say(images[0]['href'])
+        return
+
+    await bot.say("Couldn't find anything!")
+
+@bot.command(name="randomImage", brief="returns an image!", description="returns a random image from results that you searched for!")
+async def randomImage(*items):
+    item = ' '.join(map(str, items))
+    item = item.replace(" ", "%20")
+    url = "https://www.bing.com/images/search?q={0}".format(item)
+    content = urllib.request.urlopen(url)
+    soup = BeautifulSoup(content, features="lxml")
+    images = soup.find_all('a', {"class":True})
+
+    with open("./file.html", mode="w+", encoding="UTF-8") as out:
+        out.write(soup.prettify())
+
+    images = [i for i in images if "thumb" in i['class']]
+
+    if len(images) > 0:
+        index = random.randint(0, len(images))
+        await bot.say(images[index]['href'])
+        return
+
+    await bot.say("Couldn't find anything!")
 
 @bot.command(name="dumbQuote", description="says the thing again as a dumb quote", brief="dUMbqUOTe")
 async def dumbQuote(*items):
