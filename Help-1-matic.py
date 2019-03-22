@@ -112,9 +112,12 @@ async def dumbQuote(*items):
     item = ' '.join(map(str, items))
     item = item.lower()
     new_str = ""
-    for letter in item:
-        if random.randint(0, 100) < 50:
-            new_str += letter.upper()
+    for i, letter in enumerate(item):
+        if i % 2 == 0:
+            if not letter.isupper():
+                new_str += letter.upper()
+            else:
+                new_str += letter.lower()
         else:
             new_str += letter
     if len(new_str) > 2000:
