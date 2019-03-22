@@ -150,7 +150,7 @@ async def bthis(*items):
         return
     await bot.say(new_str)
 
-@bot.command(name="listOpinions", description="lists all potential opinions on this server", brief="lists all potential opinions on this server" pass_context=True, no_pm=True)
+@bot.command(name="listOpinions", description="lists all potential opinions on this server", brief="lists all potential opinions on this server", pass_context=True, no_pm=True)
 async def listOpinions(ctx):
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
