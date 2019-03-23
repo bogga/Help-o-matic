@@ -54,6 +54,18 @@ def get_spell(name):
     ans = spells_cursor.execute("SELECT * FROM spells WHERE spell_name IS \"" + name.lower() + "\"").fetchone()
     return ans
 
+async def get_images(item):
+    url = "https://www.bing.com/images/search?q={0}".format(item)
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get(url) as r:
+            content = await r.text()
+            soup = BeautifulSoup(content, features="lxml")
+            images = soup.find_all('a', {"class":True})
+
+            return [i for i in images if "thumb" in i['class']]
+
+    return []
+
 @bot.command(name="spell", brief="gives spell details from PFSRD", description="gives important details from spells from PFSRD - no ACG.")
 async def spell(*names : str):
     for name in names:
@@ -112,18 +124,11 @@ async def invite():
 async def image(*items):
     item = ' '.join(map(str, items))
     item = item.replace(" ", "%20")
-    url = "https://www.bing.com/images/search?q={0}".format(item)
-    async with aiohttp.ClientSession() as cs:
-        async with cs.get(url) as r:
-            content = await r.text()
-            soup = BeautifulSoup(content, features="lxml")
-            images = soup.find_all('a', {"class":True})
+    images = await get_images(item)
 
-            images = [i for i in images if "thumb" in i['class']]
-
-            if len(images) > 0:
-                await bot.say(images[0]['href'])
-                return
+    if len(images) > 0:
+        await bot.say(images[0]['href'])
+        return
 
     await bot.say("Couldn't find anything!")
             
@@ -131,19 +136,12 @@ async def image(*items):
 async def randomImage(*items):
     item = ' '.join(map(str, items))
     item = item.replace(" ", "%20")
-    url = "https://www.bing.com/images/search?q={0}".format(item)
-    async with aiohttp.ClientSession() as cs:
-        async with cs.get(url) as r:
-            content = await r.text()
-            soup = BeautifulSoup(content, features="lxml")
-            images = soup.find_all('a', {"class":True})
+    images = await get_images(item)
 
-            images = [i for i in images if "thumb" in i['class']]
-
-            if len(images) > 0:
-                index = random.randint(0, len(images))
-                await bot.say(images[index]['href'])
-                return
+    if len(images) > 0:
+        index = random.randint(0, len(images))
+        await bot.say(images[index]['href'])
+        return
 
     await bot.say("Couldn't find anything!")
 
