@@ -62,7 +62,11 @@ async def get_images(item):
             soup = BeautifulSoup(content, features="lxml")
             images = soup.find_all('a', {"class":True})
 
-            return [i for i in images if "thumb" in i['class']]
+            images = [i for i in images if "thumb" in i['class']]
+            for i in images:
+                i['href'] = i['href'].replace(" ", "%20")
+
+            return images
 
     return []
 
