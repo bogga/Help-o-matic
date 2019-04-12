@@ -2,6 +2,7 @@ import discord, aiohttp
 from discord.ext import commands
 import random, sqlite3, re, FlagHandler, urllib.request
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 with open("token.txt", 'r') as token_file:
     TOKEN = token_file.read()
@@ -46,8 +47,63 @@ async def on_ready():
     try:
         res = c.execute("SELECT * FROM adjective_authors").fetchone()
     except sqlite3.OperationalError:
-        c.execute("CREATE TABLE adjective_authors (ID INTEGER UNIQUE, discordID varchar(255), FOREIGN KEY(ID) REFERENCES adjectives(ID))")
+        c.execute("CREATE TABLE adjective_authors (ID INTEGER UNIQUE, discordID varchar(255), FOREIGN KEY(ID) REFERENCES adjectives(ID))")   
+
+async def get_owl_games(url):
+    async with aiohttp.ClientSession() as cs:
+        marker = 'style'
+        games = []
+
+        found = False
+        async with cs.get(url) as link_r:
+            link_content = await link_r.text()
+            link_soup = BeautifulSoup(link_content, features="lxml")
+
+            tables = link_soup.find_all("table", {"class":True})
+            match_tables = []
+            for t in tables:
+                try:
+                    if "matchlist" in t['class']:
+                        match_tables.append(t)
+                except KeyError:
+                    continue
+
+            for match_table in match_tables:
+                count = 0
+                tr = match_table.find("tbody").find_all("tr", {"class":True})
+                match_rows = []
+                for r in tr:
+                    try:
+                        if "match-row" in r['class']:
+                            match_rows.append(r)
+                    except KeyError:
+                        continue
+
+                for match_row in match_rows:
+                    if count > 3:
+                        break
+
+                    match_list_slots = []
+                    td = match_row.find_all("td")
+
+                    match_list_slots.append(td[0])
+                    match_list_slots.append(td[-1])
+                    
+                    try:
+                        if marker not in match_list_slots[0].attrs and marker not in match_list_slots[1].attrs:
+                            found = True
+                            count += 1
+                            # found first new game
+                            team1 = match_list_slots[0].find("span", {"data-highlightingclass",True})["data-highlightingclass"]
+                            team2 = match_list_slots[1].find("span", {"data-highlightingclass",True})["data-highlightingclass"]
+                            games.append((team1, team2))
+                    except KeyError:
+                        continue
+
+                if found:
+                    return [datetime.now().strftime("%B %d, %Y")] + games
     
+    return None
 
 def get_spell(name):
     name = re.sub("[^a-zA-z0-9// ]", "", name)
@@ -69,6 +125,22 @@ async def get_images(item):
             return images
 
     return []
+
+@bot.command(name="games", brief="lists the next set of OWL games", description="lists the next set of OWL games from the given page")
+async def games(url : str):
+    if url == "":
+        await bot.say("You need a url!")
+        return
+
+    next_games = await get_owl_games(url)
+    if next_games == None:
+        await bot.say("No games found at that url.")
+        return
+    
+    temp_games = ["{0} vs {1}".format(i[0], i[1]) for i in next_games[1:]]
+    string = "\n".join(temp_games)
+
+    await bot.say(string)
 
 @bot.command(name="spell", brief="gives spell details from PFSRD", description="gives important details from spells from PFSRD - no ACG.")
 async def spell(*names : str):
