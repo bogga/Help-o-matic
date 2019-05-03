@@ -69,22 +69,17 @@ async def get_owl_games(url):
                     continue
 
             for match_table in match_tables:
-                count = 0
-                tr = match_table.find("tbody").find_all("tr", {"class":True})
-                match_rows = []
-                for r in tr:
-                    try:
-                        if "match-row" in r['class']:
-                            match_rows.append(r)
-                    except KeyError:
-                        continue
+                rows = match_table.find("tbody").find_all("tr")
 
-                for match_row in match_rows:
-                    if count > 3:
-                        break
+                for row in rows:
+                    if 'class' not in row.attrs:
+                        if found:
+                            break
+                        else:
+                            continue
 
                     match_list_slots = []
-                    td = match_row.find_all("td")
+                    td = row.find_all("td")
 
                     match_list_slots.append(td[0])
                     match_list_slots.append(td[-1])
@@ -92,7 +87,7 @@ async def get_owl_games(url):
                     try:
                         if marker not in match_list_slots[0].attrs and marker not in match_list_slots[1].attrs:
                             found = True
-                            count += 1
+                            
                             # found first new game
                             team1 = match_list_slots[0].find("span", {"data-highlightingclass",True})["data-highlightingclass"]
                             team2 = match_list_slots[1].find("span", {"data-highlightingclass",True})["data-highlightingclass"]
@@ -127,8 +122,8 @@ async def get_images(item):
     return []
 
 @bot.command(name="games", brief="lists the next set of OWL games", description="lists the next set of OWL games from the given page")
-async def games(url : str):
-    if url == "":
+async def games(url):
+    if url == "" or url == None:
         await bot.say("You need a url!")
         return
 
