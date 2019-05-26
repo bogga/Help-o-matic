@@ -265,7 +265,7 @@ async def bthis(ctx, *items):
 @bot.command(name="listOpinions", description="lists all potential opinions on this server", brief="lists all potential opinions on this server", pass_context=True, no_pm=True)
 async def listOpinions(ctx):
     c = adj_conn.cursor()
-    server_id = ctx.message.server.id
+    server_id = ctx.message.guild.id
     res = c.execute("SELECT adjective FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base')".format(server_id)).fetchall()
     opinions = [item[0] for item in res]
     string = ", ".join(opinions)
@@ -299,7 +299,7 @@ async def whoAdded(ctx, *items : str):
         await ctx.send("Bad opinion! Wrong! Stop!")
         return
     c = adj_conn.cursor()
-    server_id = ctx.message.server.id
+    server_id = ctx.message.guild.id
     res = c.execute("SELECT ID FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchone()
     if res == None:
         await ctx.send("Opinion not found!")
@@ -326,7 +326,7 @@ async def addOpinion(ctx, *items : str):
         await ctx.send("Bad opinion! Wrong! Stop!")
         return
     c = adj_conn.cursor()
-    server_id = ctx.message.server.id
+    server_id = ctx.message.guild.id
     if c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchall() != []:
         await ctx.send("Opinion already found")
         return
@@ -350,7 +350,7 @@ async def removeOpinion(ctx, *items : str):
         await ctx.send("Bad opinion! Wrong! Stop!")
         return
     c = adj_conn.cursor()
-    server_id = ctx.message.server.id
+    server_id = ctx.message.guild.id
     adjID = c.execute("SELECT ID FROM adjectives WHERE server_id IS '{0}' AND adjective IS \"{1}\"".format(server_id, item)).fetchall()
     if adjID == []:
         await ctx.send("Opinion not found")
@@ -363,7 +363,7 @@ async def removeOpinion(ctx, *items : str):
 
 @bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion", pass_context=True, no_pm=True)
 async def opinion(ctx, *items : str):
-    name = ctx.message.server.me.nick
+    name = ctx.message.guild.me.nick
     item = ' '.join(map(str, items))
     while item[-1] == " ":
         item = item[:-1]
@@ -375,7 +375,7 @@ async def opinion(ctx, *items : str):
         await ctx.send("I think I'm great. I also think I was designed by a genius.")
     else:
         c = adj_conn.cursor()
-        server_id = ctx.message.server.id
+        server_id = ctx.message.guild.id
         res = c.execute("SELECT adjective FROM adjectives WHERE server_id IS '{0}' OR server_id IS 'base'".format(server_id)).fetchall()
         await ctx.send("I think " + item + " is " + random.choice(res)[0])
 
