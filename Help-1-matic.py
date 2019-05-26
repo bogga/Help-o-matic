@@ -57,7 +57,7 @@ async def get_owl_games(url):
         found = False
         async with cs.get(url) as link_r:
             link_content = await link_r.text()
-            link_soup = BeautifulSoup(link_content, features="lxml")
+            link_soup = BeautifulSoup(link_content, features="html.parser")
 
             tables = link_soup.find_all("table", {"class":True})
             match_tables = []
@@ -110,7 +110,7 @@ async def get_images(item):
     async with aiohttp.ClientSession() as cs:
         async with cs.get(url) as r:
             content = await r.text()
-            soup = BeautifulSoup(content, features="lxml")
+            soup = BeautifulSoup(content, features="html.parser")
             images = soup.find_all('a', {"class":True})
 
             images = [i for i in images if "thumb" in i['class']]
@@ -122,102 +122,102 @@ async def get_images(item):
     return []
 
 @bot.command(name="games", brief="lists the next set of OWL games", description="lists the next set of OWL games from the given page")
-async def games(url):
+async def games(ctx, url):
     if url == "" or url == None:
-        await bot.say("You need a url!")
+        await ctx.send("You need a url!")
         return
 
     next_games = await get_owl_games(url)
     if next_games == None:
-        await bot.say("No games found at that url.")
+        await ctx.send("No games found at that url.")
         return
     
     temp_games = ["{0} vs {1}".format(i[0], i[1]) for i in next_games[1:]]
     string = "\n".join(temp_games)
 
-    await bot.say(string)
+    await ctx.send(string)
 
 @bot.command(name="spell", brief="gives spell details from PFSRD", description="gives important details from spells from PFSRD - no ACG.")
-async def spell(*names : str):
+async def spell(ctx, *names : str):
     for name in names:
         details = get_spell(name)
         if details is None:
             while name[-1] is " ":
                 name = name[:-1]
-            await bot.say(name + " not found!")
+            await ctx.send(name + " not found!")
             continue
         sep = "=========================="
         response = "**{name}**: {desc}\nCasting time: {time}\nRange: {range}\nSR: {sr}\nComponents: {components}".format(name=details[0], desc=details[4], time=details[7], sr=details[6], range=details[9], components=details[11])
-        await bot.say(sep + "\n" + response)
+        await ctx.send(sep + "\n" + response)
         full = details[1]
         if len(full) >= 2000:
             remaining = len(full)
             point = 2000
-            await bot.say("\nFull:")
+            await ctx.send("\nFull:")
             while remaining > 0:
                 while full[point] != " ":
                     point -= 1
-                await bot.say(full[:point])
+                await ctx.send(full[:point])
                 full = full[point + 1:]
                 remaining = len(full)
                 if remaining < 2000:
-                    await bot.say(full)
-                    await bot.say(sep)
+                    await ctx.send(full)
+                    await ctx.send(sep)
                     break
         else:
-            await bot.say("\nFull: {full}".format(full=details[1]) + "\n" + sep)
+            await ctx.send("\nFull: {full}".format(full=details[1]) + "\n" + sep)
 
 @bot.command(name="roll", brief="rolls a dice in NdN format", description="rolls a dice in NdN format. E.g. !roll 3d6")
-async def roll(dice : str):
+async def roll(ctx, dice : str):
     try:
         rolls, limit = map(int, dice.split('d'))
     except Exception:
-        await bot.say('Format has to be in NdN!')
+        await ctx.send('Format has to be in NdN!')
         return
 
     if limit > 0 and rolls > 0 and limit < 500 and rolls < 500:
         roll_results = [random.randint(1, limit) for r in range(rolls)]
         result = ', '.join([str(x) for x in roll_results])
         if rolls < 2:
-            await bot.say(result)
+            await ctx.send(result)
         else:
-            await bot.say(result + "\nTotal: " + str(sum(roll_results)))
+            await ctx.send(result + "\nTotal: " + str(sum(roll_results)))
     else:
-        await bot.say('Illegal combination!')
+        await ctx.send('Illegal combination!')
 
 @bot.command(name="invite", description="replies with an invite link for the bot to join your server!", brief="replies with an invite link")
-async def invite():
+async def invite(ctx):
     link = "https://discordapp.com/oauth2/authorize?client_id={0}&scope=bot&permissions=0".format(bot.user.id)
-    await bot.say("Follow this link to add me to your server!")
-    await bot.say(link)
+    await ctx.send("Follow this link to add me to your server!")
+    await ctx.send(link)
 
 @bot.command(name="image", brief="returns an image!", description="returns the first image that you searched for!")
-async def image(*items):
+async def image(ctx, *items):
     item = ' '.join(map(str, items))
     item = item.replace(" ", "%20")
     images = await get_images(item)
 
     if len(images) > 0:
-        await bot.say(images[0]['href'])
+        await ctx.send(images[0]['href'])
         return
 
-    await bot.say("Couldn't find anything!")
+    await ctx.send("Couldn't find anything!")
             
 @bot.command(name="randomImage", brief="returns an image!", description="returns a random image from results that you searched for!")
-async def randomImage(*items):
+async def randomImage(ctx, *items):
     item = ' '.join(map(str, items))
     item = item.replace(" ", "%20")
     images = await get_images(item)
 
     if len(images) > 0:
         index = random.randint(0, len(images))
-        await bot.say(images[index]['href'])
+        await ctx.send(images[index]['href'])
         return
 
-    await bot.say("Couldn't find anything!")
+    await ctx.send("Couldn't find anything!")
 
 @bot.command(name="dumbQuote", description="says the thing again as a dumb quote", brief="dUMbqUOTe")
-async def dumbQuote(*items):
+async def dumbQuote(ctx, *items):
     item = ' '.join(map(str, items))
     item = item.lower()
     new_str = ""
@@ -230,12 +230,12 @@ async def dumbQuote(*items):
         else:
             new_str += letter
     if len(new_str) > 2000:
-        await bot.say("TOO LONG")
+        await ctx.send("TOO LONG")
         return
-    await bot.say(new_str)
+    await ctx.send(new_str)
 
 @bot.command(name="emojify", description="swaps all letters with their emoji version", brief="EMOJI")
-async def emojify(*items):
+async def emojify(ctx, *items):
     item = ' '.join(map(str, items))
     new_str = ""
     for letter in item:
@@ -244,12 +244,12 @@ async def emojify(*items):
         else:
             new_str += letter
     if len(new_str) > 2000:
-        await bot.say("TOO LONG")
+        await ctx.send("TOO LONG")
         return
-    await bot.say(new_str)
+    await ctx.send(new_str)
 
 @bot.command(name="bthis", description="swaps all vowels with their respective emoji", brief=":b: :b: :b:")
-async def bthis(*items):
+async def bthis(ctx, *items):
     item = ' '.join(map(str, items))
     new_str = ""
     for letter in item:
@@ -258,9 +258,9 @@ async def bthis(*items):
         else:
             new_str += letter
     if len(new_str) > 2000:
-        await bot.say("TOO LONG")
+        await ctx.send("TOO LONG")
         return
-    await bot.say(new_str)
+    await ctx.send(new_str)
 
 @bot.command(name="listOpinions", description="lists all potential opinions on this server", brief="lists all potential opinions on this server", pass_context=True, no_pm=True)
 async def listOpinions(ctx):
@@ -276,14 +276,14 @@ async def listOpinions(ctx):
             while remaining > 0:
                 while message[point] != " ":
                     point -= 1
-                await bot.say(message[:point])
+                await ctx.send(message[:point])
                 message = message[point + 1:]
                 remaining = len(message)
                 if remaining < 2000:
-                    await bot.say(message)
+                    await ctx.send(message)
                     break
     else:
-        await bot.say(message)
+        await ctx.send(message)
 
 @bot.command(name="whoAdded", description="returns the user who added that option to potential opinions", brief="returns the user who added that option to potential opinions", pass_context=True, no_pm=True)
 async def whoAdded(ctx, *items : str):
@@ -293,24 +293,24 @@ async def whoAdded(ctx, *items : str):
     item = re.sub("[^a-zA-Z0-9 ',\"]", "", item)
     item_nums = re.sub("[^0-9]", "", item)
     if len(item) > 254:
-        await bot.say("Too long winky face")
+        await ctx.send("Too long winky face")
         return
     if items == None or items.count(" ") == len(items) or item_nums == item:
-        await bot.say("Bad opinion! Wrong! Stop!")
+        await ctx.send("Bad opinion! Wrong! Stop!")
         return
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
     res = c.execute("SELECT ID FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchone()
     if res == None:
-        await bot.say("Opinion not found!")
+        await ctx.send("Opinion not found!")
         return
     opinionID = int(res[0])
     authorID = c.execute("SELECT discordID from adjective_authors WHERE ID IS '{0}'".format(opinionID)).fetchone()
     if authorID != None:
         name = authorID[0]
-        await bot.say("Option {0} added by {1}".format(item, name))
+        await ctx.send("Option {0} added by {1}".format(item, name))
     else:
-        await bot.say("Sorry, the archives are incomplete.")
+        await ctx.send("Sorry, the archives are incomplete.")
 
 @bot.command(name="addOpinion", description="adds an option to the bot's opinions (for this server)", brief="adds an option to the bot's opinions (for this server)", pass_context=True, no_pm=True)
 async def addOpinion(ctx, *items : str):
@@ -320,21 +320,21 @@ async def addOpinion(ctx, *items : str):
     item = re.sub("[^a-zA-Z0-9 ',\"]", "", item)
     item_nums = re.sub("[^0-9]", "", item)
     if len(item) > 254:
-        await bot.say("Too long winky face")
+        await ctx.send("Too long winky face")
         return
     if items == None or items.count(" ") == len(items) or item_nums == item:
-        await bot.say("Bad opinion! Wrong! Stop!")
+        await ctx.send("Bad opinion! Wrong! Stop!")
         return
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
     if c.execute("SELECT * FROM adjectives WHERE (server_id IS '{0}' OR server_id IS 'base') AND adjective IS \"{1}\"".format(server_id, item)).fetchall() != []:
-        await bot.say("Opinion already found")
+        await ctx.send("Opinion already found")
         return
     opinion_id = c.execute("SELECT MAX(ID) from adjectives").fetchone()[0] + 1
     c.execute("INSERT INTO adjectives VALUES ({0}, '{1}', \"{2}\")".format(opinion_id, server_id, item))
     c.execute("INSERT INTO adjective_authors VALUES ({0}, '{1}')".format(opinion_id, ctx.message.author.mention))
     adj_conn.commit()
-    await bot.say("Added {0} to potential opinions for this server".format(item))
+    await ctx.send("Added {0} to potential opinions for this server".format(item))
 
 @bot.command(name="removeOpinion", description="removes an option from the bot's opinions (for this server)", brief="removes an option from the bot's opinions (for this server)", pass_context=True, no_pm=True)
 async def removeOpinion(ctx, *items : str):
@@ -344,22 +344,22 @@ async def removeOpinion(ctx, *items : str):
     item = re.sub("[^a-zA-Z0-9 ',\"]", "", item)
     item_nums = re.sub("[^0-9]", "", item)
     if len(item) > 254:
-        await bot.say("Too long winky face")
+        await ctx.send("Too long winky face")
         return
     if items == None or items.count(" ") == len(items) or item_nums == item:
-        await bot.say("Bad opinion! Wrong! Stop!")
+        await ctx.send("Bad opinion! Wrong! Stop!")
         return
     c = adj_conn.cursor()
     server_id = ctx.message.server.id
     adjID = c.execute("SELECT ID FROM adjectives WHERE server_id IS '{0}' AND adjective IS \"{1}\"".format(server_id, item)).fetchall()
     if adjID == []:
-        await bot.say("Opinion not found")
+        await ctx.send("Opinion not found")
         return
     adjID = adjID[0][0]
     c.execute("DELETE FROM adjectives WHERE adjective IS \"{0}\" AND server_id IS '{1}'".format(item, server_id))
     c.execute("DELETE FROM adjective_authors WHERE ID is {0}".format(adjID))
     adj_conn.commit()
-    await bot.say("Removed {0} as an option for this server".format(item))
+    await ctx.send("Removed {0} as an option for this server".format(item))
 
 @bot.command(name="opinion", description="states the bot's opinion on the listed item", brief="states the bot's opinion", pass_context=True, no_pm=True)
 async def opinion(ctx, *items : str):
@@ -368,16 +368,16 @@ async def opinion(ctx, *items : str):
     while item[-1] == " ":
         item = item[:-1]
     if item == "Adam":
-        await bot.say("I think Adam is a genius. Christ, what a man.")
+        await ctx.send("I think Adam is a genius. Christ, what a man.")
     elif item == "Alex":
-        await bot.say("I think Alex is *sick as eggs*.")
+        await ctx.send("I think Alex is *sick as eggs*.")
     elif item == name:
-        await bot.say("I think I'm great. I also think I was designed by a genius.")
+        await ctx.send("I think I'm great. I also think I was designed by a genius.")
     else:
         c = adj_conn.cursor()
         server_id = ctx.message.server.id
         res = c.execute("SELECT adjective FROM adjectives WHERE server_id IS '{0}' OR server_id IS 'base'".format(server_id)).fetchall()
-        await bot.say("I think " + item + " is " + random.choice(res)[0])
+        await ctx.send("I think " + item + " is " + random.choice(res)[0])
 
 @bot.command(name="repeat", description="repeats the next bits (for God King Adam only)", brief="not for you", pass_context=True)
 async def repeat(ctx, times : int, *content : str):
@@ -385,9 +385,9 @@ async def repeat(ctx, times : int, *content : str):
     """Repeats a message multiple times."""
     if ctx.message.author.name == "Adam" and len(content) > 0:
         for _ in range(times):
-            await bot.say(content)
+            await ctx.send(content)
     else:
-        await bot.say("I'm sorry Dave, I'm afraid I can't do that.")
+        await ctx.send("I'm sorry Dave, I'm afraid I can't do that.")
 
 @bot.command(name="choose", description="chooses a random item from the given parameters, or (if no parameters) from the voice channel the invoker is in", brief="chooses randomly", pass_context=True)
 async def choose(ctx, *args):
@@ -395,21 +395,21 @@ async def choose(ctx, *args):
     if len(args) > 0:
         for item in args:
             items.append(item)
-        await bot.say("The chosen one is: " + random.choice(items))
+        await ctx.send("The chosen one is: " + random.choice(items))
         return
     else:
         try:
             invoker = ctx.message.author
             items = invoker.voice.voice_channel.voice_members
-            await bot.say("The chosen one is: " + random.choice(items).mention)
+            await ctx.send("The chosen one is: " + random.choice(items).mention)
             return
         except AttributeError:
-            await bot.say("You're not in a voice channel!")
+            await ctx.send("You're not in a voice channel!")
             return
 
 @bot.command(pass_context=True, brief="chooses an overwatch hero for you to play", description="chooses an overwatch hero for you to play")
 async def whathero(ctx):
-    await bot.say(ctx.message.author.mention + ", you should play " + random.choice(HEROES))
+    await ctx.send(ctx.message.author.mention + ", you should play " + random.choice(HEROES))
 
 @bot.command(pass_context=True, brief="chooses an overwatch hero for everyone in your voice channel", description="if you're in a voice channel, assigns an overwatch hero for everyone to play with no duplicates")
 async def whatheroes(ctx):
@@ -417,7 +417,7 @@ async def whatheroes(ctx):
     try:
         names = ctx.message.author.voice.voice_channel.voice_members
     except AttributeError:
-        await bot.say("You're not in a voice channel!")
+        await ctx.send("You're not in a voice channel!")
         return
 
     printable = ""
@@ -425,13 +425,13 @@ async def whatheroes(ctx):
         try:
             this_hero = random.choice(heroes)
         except IndexError:
-            await bot.say("Not enough heroes to go around! I'll allow duplicates.")
+            await ctx.send("Not enough heroes to go around! I'll allow duplicates.")
             heroes = HEROES
         heroes.remove(this_hero)
         printable += names[i].mention + ": " + this_hero
         if i < len(names) - 1:
             printable += "\n"
-    await bot.say(printable)
+    await ctx.send(printable)
 
     
 @bot.command(name="divide", description="2 modes:\n1) e.g.: !divide A B C D 2 ->\nTeam 1: B, D\nTeam 2: A, C\n2) !divide N -> this splits all members of your current voice channel into N teams", brief="splits", aliases=["split"], pass_context=True)
@@ -444,18 +444,18 @@ async def divide(ctx, *args):
             # for name in names:
             #     print(name.mention)
         except AttributeError:
-            await bot.say("You're not in a voice channel!")
+            await ctx.send("You're not in a voice channel!")
             return
         try:
             num = int(args[0])
         except ValueError:
-            await bot.say("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
+            await ctx.send("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
             num = 2
     else:
         try:
             num = int(args[-1])
         except (ValueError, IndexError) as _:
-            await bot.say("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
+            await ctx.send("Number seems wrong! Defaulting to 2. " + ctx.message.author.mention)
             num = 2
             args = args[:-1]
         names = []
@@ -466,7 +466,7 @@ async def divide(ctx, *args):
     last = 0.0
 
     if num > 9:
-        await bot.say("Hmmm let's not do that, " + ctx.message.author.mention)
+        await ctx.send("Hmmm let's not do that, " + ctx.message.author.mention)
         return
 
     random.shuffle(names)
@@ -496,6 +496,6 @@ async def divide(ctx, *args):
                 if j < (len(out[i]) - 1):
                     printable += ", "
             printable += "\n"
-    await bot.say(printable)
+    await ctx.send(printable)
 
 bot.run(TOKEN)
