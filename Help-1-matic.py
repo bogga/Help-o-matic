@@ -415,7 +415,7 @@ async def whathero(ctx):
 async def whatheroes(ctx):
     heroes = HEROES
     try:
-        names = ctx.message.author.voice.voice_channel.voice_members
+        names = ctx.message.author.voice.channel.members
     except AttributeError:
         await ctx.send("You're not in a voice channel!")
         return
@@ -435,12 +435,10 @@ async def whatheroes(ctx):
 
     
 @bot.command(name="divide", description="2 modes:\n1) e.g.: !divide A B C D 2 ->\nTeam 1: B, D\nTeam 2: A, C\n2) !divide N -> this splits all members of your current voice channel into N teams", brief="splits", aliases=["split"], pass_context=True)
-async def divide(ctx, *args):
-    invoker = ctx.message.author
-    
+async def divide(ctx, *args):    
     if len(args) == 1:
         try:
-            names = invoker.voice.voice_channel.voice_members
+            names = ctx.message.author.voice.channel.members
             # for name in names:
             #     print(name.mention)
         except AttributeError:
